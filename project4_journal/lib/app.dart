@@ -47,8 +47,8 @@ class AppState extends State<App> {
 
   void loadJournal() async {
     // TODO: Delete this code later: Code to reset preferences
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.clear();
+    //SharedPreferences preferences = await SharedPreferences.getInstance();
+    //await preferences.clear();
     
     // Delete database
     //await deleteDatabase('jounal.db'); 
@@ -65,13 +65,15 @@ class AppState extends State<App> {
     // Retrieve data from sql database
     List<Map> databaseEntries = await database.rawQuery('SELECT * FROM journal_entries');
     
+    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+
     // Create journal object to store database entries in a list
     final listEntries = databaseEntries.map((record){
       return Entries(
         title: record['title'],
         body: record['body'], 
         rating: record['rating'],
-        dateTime: DateTime.parse(record['date']));
+        dateTime: formatter.format(DateTime.parse(record['date'])));
     }).toList();
     
     setState(() {

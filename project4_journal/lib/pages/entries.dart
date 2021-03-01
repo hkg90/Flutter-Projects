@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
-
+import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:project4_journal/models/process_data.dart';
 import 'package:flutter/material.dart';
 
@@ -36,14 +37,16 @@ class JournalEntriesState extends State<JournalEntries> {
     // Retrieve data from sql database
     List<Map> databaseEntries = await database.rawQuery('SELECT * FROM journal_entries');
     
+    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+
     // Create journal object to store database entries in a list
     final listEntries = databaseEntries.map((record){
       return Entries(
         title: record['title'],
         body: record['body'], 
         rating: record['rating'],
-        dateTime: DateTime.parse(record['date']));
-    }).toList();
+        dateTime: formatter.format(DateTime.parse(record['date'])));
+      }).toList();
     
     setState(() {
       // Journal.journal = listEntries; 
@@ -65,12 +68,12 @@ class JournalEntriesState extends State<JournalEntries> {
   Widget verticalLayout2(BuildContext context, userJournal){
     //var userJournal = loadJournal();
     return ListView.separated(
-        itemCount: loadJournal() == null ? 0: userJournal.length,
+        itemCount: loadJournal() == null ? loadPage(context): userJournal.length,
         separatorBuilder:  (BuildContext context, int index) => Divider(), 
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
           title: Text(userJournal[index].title),
-          subtitle: Text(userJournal[index].body),
+          subtitle: Text(userJournal[index].body+', ' + userJournal[index].dateTime.toString()),
           );
         });      
       
@@ -90,19 +93,19 @@ class JournalEntriesState extends State<JournalEntries> {
      )
     ]);  
   }
-  // Widget loadPage(BuildContext context){
-  //   if (JournalEntriesState().userJournal == null){
-  //     return Column(
-  //       children: [
-  //           Text('Loading'),
-  //           Center(child: CircularProgressIndicator(),)
-  //       ],);
-  //   } else {
-  //     return LayoutBuilder(builder: layoutDecider);
-  //   }
+  Widget loadPage(BuildContext context){
+    if (JournalEntriesState().userJournal == null){
+      return Column(
+        children: [
+            Text('Loading'),
+            Center(child: CircularProgressIndicator(),)
+        ],);
+    } else {
+      return LayoutBuilder(builder: layoutDecider);
+    }
 
 
-  // }
+  }
 
 }
 

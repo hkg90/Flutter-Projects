@@ -2,8 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:project4_journal/pages/setting.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:project4_journal/pages/setting.dart';
+
 import 'package:project4_journal/models/process_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project4_journal/app.dart';
