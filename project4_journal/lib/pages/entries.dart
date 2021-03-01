@@ -5,31 +5,34 @@ import 'package:project4_journal/models/process_data.dart';
 import 'package:flutter/material.dart';
 import 'package:project4_journal/pages/display_single_entry.dart';
 import 'package:flutter/widgets.dart';
+import 'package:project4_journal/app.dart';
 
 
 // Generates Resume tab page for app and lists all jobs stored in Jobs Class
 class JournalEntries extends StatefulWidget {
-  static var allJobs = JobEntries.data;
+  // final recordObject;
 
-
+  // JournalEntries({Key key, @required this.recordObject}) : super(key: key);
   @override
-  JournalEntriesState createState() => JournalEntriesState();
+  JournalEntriesState createState() => new JournalEntriesState();
 }
 
 class JournalEntriesState extends State<JournalEntries> {
+ 
   var userJournal;
   final String apptitle = 'Journal Entries';
+  
 
-
+  // Used to initalize entries display page with journal entries from database
   void initState(){
     super.initState();
-    //loadJournal();
+    loadJournal();
   }
   
   Future loadJournal() async {
     // Open database file
     Database database = await openDatabase(
-      'journal.db', version: 1, onCreate: (Database db, int version) async{
+      'journal.sqlite3.db', version: 1, onCreate: (Database db, int version) async{
         var query = await processSQLData();
         await db.execute(query);
       });
@@ -51,24 +54,41 @@ class JournalEntriesState extends State<JournalEntries> {
     setState(() {
       // Journal.journal = listEntries; 
       userJournal = listEntries;
+      print('entries.dart side: ');
       print(userJournal);
       return userJournal;
     });
   }
 
   @override 
+  void didUpdateWidget(JournalEntries oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    loadJournal();
+  }
   Widget build(BuildContext context){
-    return LayoutBuilder(builder: layoutDecider);
+    
+    return LayoutBuilder(builder: layoutDecider,);
   }
 
   Widget layoutDecider (BuildContext context, BoxConstraints constraints) =>
-  constraints.maxWidth < 500? verticalLayout1(context, userJournal) : horizontalLayout(context, userJournal);
+  constraints.maxWidth < 500? verticalLayout1(context) : horizontalLayout(context);
 
+  // Widget pageDecider (BuildContext context, userJournal) =>
+  // userJournal
 
-  Widget verticalLayout1(BuildContext context, userJournal){
-    //var userJournal = loadJournal();
-    return ListView.separated(
-        itemCount: loadJournal() == null ? loadPage(context): userJournal.length,
+//var userJournal = loadJournal();
+  Widget verticalLayout1(BuildContext context)  {
+    
+    
+    return (userJournal == null ) ? loadPage(context) : loadList(context);      
+      
+    
+  } 
+
+  Widget loadList(BuildContext context){
+    var count = userJournal.length;
+      return ListView.separated(
+        itemCount: count,
         separatorBuilder:  (BuildContext context, int index) => Divider(), 
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
@@ -82,15 +102,17 @@ class JournalEntriesState extends State<JournalEntries> {
               ),
           );},
           );
-        });      
-      
+        });
     
-  } 
+    }
 
-   Widget verticalLayout2(BuildContext context, userJournal){
+
+
+   Widget verticalLayout2(BuildContext context){
     //var userJournal = loadJournal();
+    AppState state = context.findAncestorStateOfType<AppState>();
     return ListView.separated(
-        itemCount: loadJournal() == null ? loadPage(context): userJournal.length,
+        itemCount: state.entries != null ? 1: 2,
         separatorBuilder:  (BuildContext context, int index) => Divider(), 
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
@@ -104,31 +126,31 @@ class JournalEntriesState extends State<JournalEntries> {
   } 
 
 
- Widget horizontalLayout(BuildContext context, userJournal){
+ Future horizontalLayout(BuildContext context)async {
+  
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
      children: [
         Expanded(
-                  child: verticalLayout1(context, userJournal)
+                  child: await verticalLayout1(context)
         ),
      Expanded(
-            child: verticalLayout2(context, userJournal)
+            child: verticalLayout2(context)
      )
     ]);  
   }
   Widget loadPage(BuildContext context){
-    if (JournalEntriesState().userJournal == null){
+    
       return Column(
         children: [
             Text('Loading'),
             Center(child: CircularProgressIndicator(),)
         ],);
-    } else {
-      return LayoutBuilder(builder: layoutDecider);
+    
     }
 
 
-  }
+  
 
 }
 

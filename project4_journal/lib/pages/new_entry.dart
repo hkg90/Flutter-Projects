@@ -10,7 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project4_journal/app.dart';
 
 
-
+// Form Widget that constructs the form for entering in new user data
+// into the journal
 class NewEntry extends StatefulWidget {
   @override
   _NewEntryState createState() => _NewEntryState();
@@ -37,12 +38,13 @@ class _NewEntryState extends State<NewEntry> {
           ),]
         ),
         body: 
+            // Builds form widget
             JournalEntryForm()
       );
   }
 }
 
-
+// A class that stores and creates a DTO for new journal entries
 class JournalEntryFields {
   String title;
   String body;
@@ -54,7 +56,7 @@ class JournalEntryFields {
   
 }
 
-
+// Form component of NewEntry Widget
 class JournalEntryForm extends StatefulWidget {
   @override
   JournalEntryFormState createState() {
@@ -62,18 +64,17 @@ class JournalEntryForm extends StatefulWidget {
   }
 }
 
-
 class JournalEntryFormState extends State<JournalEntryForm> {
 
   final formKey = GlobalKey<FormState>();
+  // DTO for storing new journal entry data
   final journalEntryFields = JournalEntryFields();
   
-
   @override
   Widget build(BuildContext context) {
     AppState state = context.findAncestorStateOfType<AppState>();
 
-    // Build a Form widget using the _formKey created above.
+    // Builds a Form widget using the formKey created above
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Form(
@@ -91,16 +92,15 @@ class JournalEntryFormState extends State<JournalEntryForm> {
                 onSaved: (value) {
                   journalEntryFields.title = value;
                   final DateTime currentTime = DateTime.now();
-                  //final DateFormat formatter = DateFormat('yyyy-MM-dd Hms');
-                  final String formatted = currentTime.toIso8601String();
-                 
+                  // Formats date to acceptable database time/date format
+                  final String formatted = currentTime.toIso8601String();                 
                   journalEntryFields.dateTime = formatted;
                 },
                 
                 // The validator receives the text that the user has entered.
                 validator: (value) {
                   if (value.isEmpty) {
-                    return 'Please enter a entry title';
+                    return 'Please enter an entry title';
                   }
                   return null;
                 },),
@@ -153,13 +153,10 @@ class JournalEntryFormState extends State<JournalEntryForm> {
                   if (formKey.currentState.validate()) {
                     // If valid entry, save and submit data and go back to main screen
                     formKey.currentState.save();
-                    
-                    //Deletes database file (only used while app in development mode to ensure database starts fresh/ no saved entries)
-                    //TODO: Delete deleteDatabase() later!
-                    //await deleteDatabase('jounal.db');                    
+     
                     // Open database file
                     Database database = await openDatabase(
-                      'journal.db', version: 1, onCreate: (Database db, int version) async{
+                      'journal.sqlite3.db', version: 1, onCreate: (Database db, int version) async{
                         var query = await processSQLData();
                         await db.execute(query);
                       });
@@ -172,9 +169,10 @@ class JournalEntryFormState extends State<JournalEntryForm> {
                     
                     // Update state
                   setState((){
-                    newSetting(false);
+                    var value = state.entries + 1;
+                    newSetting(value);
                     state.setState(() {
-                    state.entries = false;
+                    state.entries = state.entries + 1;
                       });
                               });
  
@@ -186,7 +184,7 @@ class JournalEntryFormState extends State<JournalEntryForm> {
             
                   }
                 },
-                child: Text('Submit'),
+                child: Text('Save'),
             )
           ]
        )
@@ -196,7 +194,7 @@ class JournalEntryFormState extends State<JournalEntryForm> {
 
     void newSetting(value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('entries', value);
+    prefs.setInt('entries', value);
   }
 }
 

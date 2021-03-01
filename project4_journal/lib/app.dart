@@ -28,7 +28,7 @@ class App extends StatefulWidget  {
 class AppState extends State<App> {
   
   var theme = true;
-  var entries = true;
+  var entries = 0;
   var userJournal;
   static const THEME_SETTING_KEY = 'theme';
   static const ENTRIES_KEY = 'entries';
@@ -37,37 +37,29 @@ class AppState extends State<App> {
   // Getter for retreiving current preferences saved theme value (if no value saved, default to True)
   bool get themeSetting => widget.preferences.getBool(THEME_SETTING_KEY) ?? true;
 
-  // Getter for retreiving current preferences saved theme value (if no value saved, default to True)
-  bool get entriesSetting => widget.preferences.getBool(ENTRIES_KEY) ?? true;
+  // Getter for retreiving current preferences saved theme value (if no value saved, default to 0)
+  int get entriesSetting => widget.preferences.getInt(ENTRIES_KEY) ?? 0;
   
   void initState(){
     super.initState();
+    // Will determine number of entries currently written in journal. If 0, 
+    // welcome page will load, else journal entries page will load
     loadJournal();
   }
 
-  void loadJournal() async {
-    // TODO: Delete this code later: Code to reset preferences
-    //SharedPreferences preferences = await SharedPreferences.getInstance();
-    //await preferences.clear();
-    
-    // Delete database
-    //await deleteDatabase('jounal.db'); 
-    
+  // Loads journal data from sqflite database
+  Future loadJournal() async {   
     // Open database file
     Database database = await openDatabase(
-      'journal.db', version: 1, onCreate: (Database db, int version) async{
+      'journal.sqlite3.db', version: 1, onCreate: (Database db, int version) async{
         var query = await processSQLData();
         await db.execute(query);
       });
-
-    //await deleteDatabase('jounal.db');    
-    
+  
     // Retrieve data from sql database
     List<Map> databaseEntries = await database.rawQuery('SELECT * FROM journal_entries');
-    
-//    final DateFormat formatter = DateFormat('yyyy-MM-dd');
 
-    // Create journal object to store database entries in a list
+    // Create journal object to store database entries into a list
     final listEntries = databaseEntries.map((record){
       return Entries(
         title: record['title'],
@@ -76,18 +68,21 @@ class AppState extends State<App> {
         dateTime: DateFormat.yMMMd().format(DateTime.parse(record['date'])));
     }).toList();
     
+    // Set state for journal
     setState(() {
-      // Journal.journal = listEntries; 
       userJournal = listEntries;
+      print('app.dart side: ');
       print(userJournal);
+      return userJournal;
     });
   }
 
   // Notifier variable, if variable value is changed UI theme will update
   ValueNotifier<bool> themeState = ValueNotifier<bool>(true);
 
-  // Notifier variable, if variable value is changed UI theme will update
-  ValueNotifier<bool> entriesState = ValueNotifier<bool>(true);
+  // Notifier variable, if variable value is changed page will switch from 'welcome'
+  // display to list of journal entries
+  ValueNotifier<int> entriesState = ValueNotifier<int>(0);
   
   // Updates theme setting notifier value and sets new theme state
   void updateSetting(BuildContext context, Color newColor) {
@@ -98,55 +93,63 @@ class AppState extends State<App> {
   themeState = ValueNotifier<bool>(state.theme);
   }
 
-  // Updates theme setting notifier value and sets new theme state
+  // Updates entries setting notifier value and sets new entries state
   void updateEntries(BuildContext context) {
   AppState state = context.findAncestorStateOfType<AppState>();
    state.setState(() {
-     state.entries = widget.preferences.getBool(ENTRIES_KEY);
+     state.entries = widget.preferences.getInt(ENTRIES_KEY);
     });
-  entriesState = ValueNotifier<bool>(state.entries);
+  entriesState = ValueNotifier<int>(state.entries);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Value Listenable builder rebuilds widgets if themeState value notifier variable's value
-    // is changed
+    // Value Listenable builder rebuilds widgets if themeState and/ or entries State 
+    // value notifier variable's value is changed
     return ValueListenableBuilder(
-      builder: (BuildContext context, bool themeState, Widget child) {
-        return MaterialApp(
-          title: entriesSetting? 'Welcome!' : 'Journal Entries',
-          // Determines theme of app
-          theme: themeSetting ? ThemeData.light(): ThemeData.dark(),
-          home: Builder(
-                      builder: (context) {
-                        return new Scaffold(
-        endDrawer: SettingsDrawer(),
-        appBar: 
-        AppBar(
-            title: Text(entriesSetting? 'Welcome!' : 'Journal Entries'),
-            actions: [Builder( builder: (context) =>
-            IconButton(
-              icon: const Icon(Icons.settings),
+      builder: (BuildContext context, int entriesState, Widget child) {
+        return ValueListenableBuilder(
+        builder: (BuildContext context, bool themeState, Widget child) {
+          return MaterialApp(
+            // Determmines title display text
+            title: (entriesSetting == 0)? 'Welcome!' : 'Journal Entries',
+            // Determines theme of app
+            theme: themeSetting ? ThemeData.light(): ThemeData.dark(),
+            home: Builder(
+                        builder: (context) {
+                          return new Scaffold(
+          // Adds settings drawer
+          endDrawer: SettingsDrawer(),
+          appBar: 
+          AppBar(
+              // Determmines title display text
+              title: Text((entriesSetting == 0)? 'Welcome!' : 'Journal Entries'),
+              actions: [Builder( builder: (context) =>
+              // Designates icon for settings drawer
+              IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+              ),
+              ),]
+          ),
+          body: 
+            // Determines which page to display (welcome or list of entries)
+            (entriesSetting == 0) ? Welcome(): JournalEntries(),
+            // Contains widget for floating action new journal entry form button
+            floatingActionButton: FloatingActionButton(
+              child: Icon(Icons.add_circle_outline),
               onPressed: () {
-                Scaffold.of(context).openEndDrawer();
-              },
-            ),
-            ),]
-        ),
-        body: entriesSetting ? Welcome(): JournalEntries(),
-                floatingActionButton: FloatingActionButton(
-                      child: Icon(Icons.add_circle_outline),
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => NewEntry()));
-                      }
-              )
-            );
-                      } 
-          )
-        );
-      },
-      valueListenable: themeState,
-          
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => NewEntry()));
+              }
+            )
+          );} 
+        )
+      );},
+        valueListenable: themeState,      
+      );},
+      valueListenable: entriesState,
     );
   }
 
