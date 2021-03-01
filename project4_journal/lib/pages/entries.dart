@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:project4_journal/models/process_data.dart';
 import 'package:flutter/material.dart';
-
+import 'package:project4_journal/pages/display_single_entry.dart';
 import 'package:flutter/widgets.dart';
 
 
@@ -37,7 +37,7 @@ class JournalEntriesState extends State<JournalEntries> {
     // Retrieve data from sql database
     List<Map> databaseEntries = await database.rawQuery('SELECT * FROM journal_entries');
     
-    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+    // final DateFormat formatter = DateFormat('yyyy-MM-dd');
 
     // Create journal object to store database entries in a list
     final listEntries = databaseEntries.map((record){
@@ -45,7 +45,7 @@ class JournalEntriesState extends State<JournalEntries> {
         title: record['title'],
         body: record['body'], 
         rating: record['rating'],
-        dateTime: formatter.format(DateTime.parse(record['date'])));
+        dateTime: DateFormat.yMMMd().format(DateTime.parse(record['date'])));
       }).toList();
     
     setState(() {
@@ -62,10 +62,10 @@ class JournalEntriesState extends State<JournalEntries> {
   }
 
   Widget layoutDecider (BuildContext context, BoxConstraints constraints) =>
-  constraints.maxWidth < 500? verticalLayout2(context, userJournal) : horizontalLayout(context, userJournal);
+  constraints.maxWidth < 500? verticalLayout1(context, userJournal) : horizontalLayout(context, userJournal);
 
 
-  Widget verticalLayout2(BuildContext context, userJournal){
+  Widget verticalLayout1(BuildContext context, userJournal){
     //var userJournal = loadJournal();
     return ListView.separated(
         itemCount: loadJournal() == null ? loadPage(context): userJournal.length,
@@ -74,6 +74,29 @@ class JournalEntriesState extends State<JournalEntries> {
           return ListTile(
           title: Text(userJournal[index].title),
           subtitle: Text(userJournal[index].body+', ' + userJournal[index].dateTime.toString()),
+          onTap: () {Navigator.push(
+              context, MaterialPageRoute(builder: (context) {
+                
+                return DetailedEntries(newEntry: userJournal[index]);
+              } 
+              ),
+          );},
+          );
+        });      
+      
+    
+  } 
+
+   Widget verticalLayout2(BuildContext context, userJournal){
+    //var userJournal = loadJournal();
+    return ListView.separated(
+        itemCount: loadJournal() == null ? loadPage(context): userJournal.length,
+        separatorBuilder:  (BuildContext context, int index) => Divider(), 
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+          title: Text(userJournal[index].title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),),
+          subtitle: Text('Rating: ' + userJournal[index].rating.toString()+ '\n' + userJournal[index].body),
+          
           );
         });      
       
@@ -86,7 +109,7 @@ class JournalEntriesState extends State<JournalEntries> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
      children: [
         Expanded(
-                  child: verticalLayout2(context, userJournal)
+                  child: verticalLayout1(context, userJournal)
         ),
      Expanded(
             child: verticalLayout2(context, userJournal)

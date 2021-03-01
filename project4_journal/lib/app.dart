@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
-import 'package:project4_journal/pages/detailed_entries.dart';
+import 'package:project4_journal/pages/display_single_entry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:sqflite/sqflite.dart';
@@ -65,7 +65,7 @@ class AppState extends State<App> {
     // Retrieve data from sql database
     List<Map> databaseEntries = await database.rawQuery('SELECT * FROM journal_entries');
     
-    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+//    final DateFormat formatter = DateFormat('yyyy-MM-dd');
 
     // Create journal object to store database entries in a list
     final listEntries = databaseEntries.map((record){
@@ -73,7 +73,7 @@ class AppState extends State<App> {
         title: record['title'],
         body: record['body'], 
         rating: record['rating'],
-        dateTime: formatter.format(DateTime.parse(record['date'])));
+        dateTime: DateFormat.yMMMd().format(DateTime.parse(record['date'])));
     }).toList();
     
     setState(() {
