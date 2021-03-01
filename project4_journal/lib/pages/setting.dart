@@ -35,10 +35,18 @@ class _SettingsDrawerState extends State<SettingsDrawer> {
             value: _lightTheme, 
             onChanged: (bool value) {
             setState((){
+              
               _lightTheme = value;
-              newSetting(value);
+              
               state.setState(() {
-              state.theme = value;
+              if (state.theme){
+                state.theme = false;
+                newSetting(state.theme);
+              } else{
+                state.theme = true;
+                newSetting(state.theme);
+              }
+              //state.theme = value;
     });
             });
           })

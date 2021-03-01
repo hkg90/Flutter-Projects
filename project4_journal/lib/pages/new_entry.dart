@@ -90,8 +90,8 @@ class JournalEntryFormState extends State<JournalEntryForm> {
                 onSaved: (value) {
                   journalEntryFields.title = value;
                   final DateTime currentTime = DateTime.now();
-                  final DateFormat formatter = DateFormat('yyyy-MM-dd');
-                  final String formatted = formatter.format(currentTime);
+                  //final DateFormat formatter = DateFormat('yyyy-MM-dd Hms');
+                  final String formatted = currentTime.toIso8601String();
                  
                   journalEntryFields.dateTime = formatted;
                 },
@@ -155,7 +155,7 @@ class JournalEntryFormState extends State<JournalEntryForm> {
                     
                     //Deletes database file (only used while app in development mode to ensure database starts fresh/ no saved entries)
                     //TODO: Delete deleteDatabase() later!
-                    await deleteDatabase('jounal.db');                    
+                    //await deleteDatabase('jounal.db');                    
                     // Open database file
                     Database database = await openDatabase(
                       'journal.db', version: 1, onCreate: (Database db, int version) async{

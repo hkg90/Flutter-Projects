@@ -42,10 +42,17 @@ class AppState extends State<App> {
   
   void initState(){
     super.initState();
-    //loadJournal();
+    loadJournal();
   }
 
   void loadJournal() async {
+    // TODO: Delete this code later: Code to reset preferences
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.clear();
+    
+    // Delete database
+    //await deleteDatabase('jounal.db'); 
+    
     // Open database file
     Database database = await openDatabase(
       'journal.db', version: 1, onCreate: (Database db, int version) async{
@@ -53,7 +60,7 @@ class AppState extends State<App> {
         await db.execute(query);
       });
 
-    await deleteDatabase('jounal.db');    
+    //await deleteDatabase('jounal.db');    
     
     // Retrieve data from sql database
     List<Map> databaseEntries = await database.rawQuery('SELECT * FROM journal_entries');
@@ -106,6 +113,7 @@ class AppState extends State<App> {
       builder: (BuildContext context, bool themeState, Widget child) {
         return MaterialApp(
           title: entriesSetting? 'Welcome!' : 'Journal Entries',
+          // Determines theme of app
           theme: themeSetting ? ThemeData.light(): ThemeData.dark(),
           home: Builder(
                       builder: (context) {
@@ -123,7 +131,7 @@ class AppState extends State<App> {
             ),
             ),]
         ),
-        body: entriesSetting ? Welcome(): Welcome(),
+        body: entriesSetting ? Welcome(): JournalEntries(),
                 floatingActionButton: FloatingActionButton(
                       child: Icon(Icons.add_circle_outline),
                       onPressed: () {

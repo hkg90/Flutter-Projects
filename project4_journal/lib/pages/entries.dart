@@ -2,7 +2,7 @@ import 'package:sqflite/sqflite.dart';
 
 import 'package:project4_journal/models/process_data.dart';
 import 'package:flutter/material.dart';
-import 'package:project4_journal/pages/setting.dart';
+
 import 'package:flutter/widgets.dart';
 
 
@@ -22,10 +22,10 @@ class JournalEntriesState extends State<JournalEntries> {
 
   void initState(){
     super.initState();
-    loadJournal();
+    //loadJournal();
   }
   
-  void loadJournal() async {
+  Future loadJournal() async {
     // Open database file
     Database database = await openDatabase(
       'journal.db', version: 1, onCreate: (Database db, int version) async{
@@ -49,6 +49,7 @@ class JournalEntriesState extends State<JournalEntries> {
       // Journal.journal = listEntries; 
       userJournal = listEntries;
       print(userJournal);
+      return userJournal;
     });
   }
 
@@ -62,10 +63,9 @@ class JournalEntriesState extends State<JournalEntries> {
 
 
   Widget verticalLayout2(BuildContext context, userJournal){
-    //loadJournal();
-
+    //var userJournal = loadJournal();
     return ListView.separated(
-        itemCount: userJournal.length,
+        itemCount: loadJournal() == null ? 0: userJournal.length,
         separatorBuilder:  (BuildContext context, int index) => Divider(), 
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
