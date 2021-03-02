@@ -30,14 +30,15 @@ DetailedEntries ({this.newEntry});
             itemCount: 1,
             separatorBuilder:  (BuildContext context, int index) => Divider(), 
             itemBuilder: (BuildContext context, int index) {
+            // Creates listtile widget displaying detailed journal entry information (title, body, rating)
             return ListTile(
-              title: Text(newEntry.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),),
-              subtitle: Text('Rating: ' + newEntry.rating.toString() + '\n' + newEntry.body),
+              title: Text(newEntry.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0),),
+              subtitle: Text(newEntry.body + '\n' + 'Rating: ' + newEntry.rating.toString(), style: TextStyle(fontSize: 18)),
               );
           }) 
         );
       } 
-      );
-      }
+    );
+  }
 
 }

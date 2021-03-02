@@ -2,19 +2,17 @@ import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter/services.dart';
-import 'package:project4_journal/pages/display_single_entry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:sqflite/sqflite.dart';
-import 'pages/welcome.dart';
+
 import 'pages/entries.dart';
+import 'pages/welcome.dart';
+import 'package:project4_journal/pages/display_single_entry.dart';
+import 'package:project4_journal/pages/new_entry.dart';
 import 'package:project4_journal/models/process_data.dart';
 import 'package:project4_journal/pages/setting.dart';
-import 'package:project4_journal/pages/new_entry.dart';
 
-
-
+// Creates widgets depending on set user preferences (theme and # journal entries)
 class App extends StatefulWidget  {
   // This widget is the root of the application.
   final SharedPreferences preferences;
@@ -26,13 +24,11 @@ class App extends StatefulWidget  {
 }
 
 class AppState extends State<App> {
-  
   var theme = true;
   var entries = 0;
   var userJournal;
   static const THEME_SETTING_KEY = 'theme';
   static const ENTRIES_KEY = 'entries';
-
 
   // Getter for retreiving current preferences saved theme value (if no value saved, default to True)
   bool get themeSetting => widget.preferences.getBool(THEME_SETTING_KEY) ?? true;
@@ -42,7 +38,7 @@ class AppState extends State<App> {
   
   void initState(){
     super.initState();
-    // Will determine number of entries currently written in journal. If 0, 
+    // Determines number of entries currently written in journal. If 0, 
     // welcome page will load, else journal entries page will load
     loadJournal();
   }
@@ -81,24 +77,6 @@ class AppState extends State<App> {
   // display to list of journal entries
   ValueNotifier<int> entriesState = ValueNotifier<int>(0);
   
-  // Updates theme setting notifier value and sets new theme state
-  void updateSetting(BuildContext context, Color newColor) {
-  AppState state = context.findAncestorStateOfType<AppState>();
-   state.setState(() {
-     state.theme = widget.preferences.getBool(THEME_SETTING_KEY);
-    });
-  themeState = ValueNotifier<bool>(state.theme);
-  }
-
-  // Updates entries setting notifier value and sets new entries state
-  void updateEntries(BuildContext context) {
-  AppState state = context.findAncestorStateOfType<AppState>();
-   state.setState(() {
-     state.entries = widget.preferences.getInt(ENTRIES_KEY);
-    });
-  entriesState = ValueNotifier<int>(state.entries);
-  }
-
   @override
   Widget build(BuildContext context) {
     // Value Listenable builder rebuilds widgets if themeState and/ or entries State 
@@ -113,45 +91,39 @@ class AppState extends State<App> {
             // Determines theme of app
             theme: themeSetting ? ThemeData.light(): ThemeData.dark(),
             home: Builder(
-                        builder: (context) {
-                          return new Scaffold(
-          // Adds settings drawer
-          endDrawer: SettingsDrawer(),
-          appBar: 
-          AppBar(
-              // Determmines title display text
-              title: Text((entriesSetting == 0)? 'Welcome!' : 'Journal Entries'),
-              actions: [Builder( builder: (context) =>
-              // Designates icon for settings drawer
-              IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () {
-                  Scaffold.of(context).openEndDrawer();
-                },
-              ),
-              ),]
-          ),
-          body: 
-            // Determines which page to display (welcome or list of entries)
-            (entriesSetting == 0) ? Welcome(): JournalEntries(),
-            // Contains widget for floating action new journal entry form button
-            floatingActionButton: FloatingActionButton(
-              child: Icon(Icons.add_circle_outline),
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => NewEntry()));
-              }
+                builder: (context) {
+                  return new Scaffold(
+                    // Adds settings drawer
+                    endDrawer: SettingsDrawer(),
+                    appBar: 
+                    AppBar(
+                        // Determmines title display text
+                        title: Text((entriesSetting == 0)? 'Welcome!' : 'Journal Entries'),
+                        actions: [Builder( builder: (context) =>
+                          // Designates icon for settings drawer
+                          IconButton(
+                            icon: const Icon(Icons.settings),
+                            onPressed: () {
+                              Scaffold.of(context).openEndDrawer();},
+                          ),
+                        ),]
+                    ),
+                    body: 
+                      // Determines which page to display (welcome or list of entries)
+                      (entriesSetting == 0) ? Welcome(): JournalEntries(),
+                      // Contains widget for floating action new journal entry form button
+                      floatingActionButton: FloatingActionButton(
+                        child: Icon(Icons.add_circle_outline),
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => NewEntry()));}
+                      )
+                    );
+                } 
             )
-          );} 
-        )
-      );},
+          );},
         valueListenable: themeState,      
-      );},
+        );},
       valueListenable: entriesState,
     );
   }
-
-
-
-
 }
-

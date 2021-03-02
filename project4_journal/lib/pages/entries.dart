@@ -1,18 +1,18 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-import 'package:project4_journal/models/process_data.dart';
 import 'package:flutter/material.dart';
-import 'package:project4_journal/pages/display_single_entry.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:flutter/widgets.dart';
+
 import 'package:project4_journal/app.dart';
+import 'package:project4_journal/pages/display_single_entry.dart';
+import 'package:project4_journal/models/process_data.dart';
 
 
-// Generates Resume tab page for app and lists all jobs stored in Jobs Class
+// Generates listview of all journal entries and loads 'Loading' page
+// if async functions have not yet received data from database.
 class JournalEntries extends StatefulWidget {
-  // final recordObject;
 
-  // JournalEntries({Key key, @required this.recordObject}) : super(key: key);
   @override
   JournalEntriesState createState() => new JournalEntriesState();
 }
@@ -22,8 +22,7 @@ class JournalEntriesState extends State<JournalEntries> {
   var userJournal;
   final String apptitle = 'Journal Entries';
   
-
-  // Used to initalize entries display page with journal entries from database
+  // Retrieve journal entries from database
   void initState(){
     super.initState();
     loadJournal();
@@ -38,9 +37,7 @@ class JournalEntriesState extends State<JournalEntries> {
       });
     
     // Retrieve data from sql database
-    List<Map> databaseEntries = await database.rawQuery('SELECT * FROM journal_entries');
-    
-    
+    List<Map> databaseEntries = await database.rawQuery('SELECT * FROM journal_entries');  
 
     // Create journal object to store database entries in a list
     final listEntries = databaseEntries.map((record){
@@ -52,84 +49,71 @@ class JournalEntriesState extends State<JournalEntries> {
       }).toList();
     
     setState(() {
-      // Journal.journal = listEntries; 
       userJournal = listEntries;
-      //return userJournal;
     });
   }
 
   @override 
+  // Rebuild widgets when changes made/ new journal entry added
   void didUpdateWidget(JournalEntries oldWidget) {
     super.didUpdateWidget(oldWidget);
     loadJournal();
   }
-  Widget build(BuildContext context){
-    
+  
+  // Determines device orientation and desired build
+  Widget build(BuildContext context){    
     return LayoutBuilder(builder: layoutDecider,);
   }
 
+  // Builds widgets per device orientation
   Widget layoutDecider (BuildContext context, BoxConstraints constraints) =>
-  constraints.maxWidth < 500? verticalLayout1(context) : horizontalLayout(context);
+  constraints.maxWidth < 500? verticalLayout(context) : horizontalLayout(context);
 
-  // Widget pageDecider (BuildContext context, userJournal) =>
-  // userJournal
-
-//var userJournal = loadJournal();
-  Widget verticalLayout1(BuildContext context)  {
-    
-    
-    return (userJournal == null ) ? loadPage(context) : loadList(context);      
-      
-    
+  // Determines whether to load 'loading' page or list of entries page
+  Widget verticalLayout(BuildContext context)  {
+    // If no data yet from database, load 'loading' page in the interim 
+    return (userJournal == null ) ? loadPage(context) : loadList(context);   
   } 
 
-  Widget loadList(BuildContext context){
-    var count = userJournal.length;
+  // Widget to display list of journal entries
+  Widget loadList(BuildContext context){    
       return ListView.separated(
-        itemCount: count,
+        itemCount: userJournal.length,
         separatorBuilder:  (BuildContext context, int index) => Divider(), 
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
-          title: Text(userJournal[index].title),
-          subtitle: Text(userJournal[index].dateTime.toString()),
-          onTap: () {Navigator.push(
-              context, MaterialPageRoute(builder: (context) {
-                
-                return DetailedEntries(newEntry: userJournal[index]);
-              } 
-              ),
-          );},
+            title: Text(userJournal[index].title),
+            subtitle: Text(userJournal[index].dateTime.toString()),
+            onTap: () {Navigator.push(
+                context, MaterialPageRoute(builder: (context) {                
+                  return DetailedEntries(newEntry: userJournal[index]);} 
+                ),
+            );},
           );
-        });
-    
-    }
+      });
+  }
 
-
-
-   Widget verticalLayout2(BuildContext context){
-    //var userJournal = loadJournal();
-    AppState state = context.findAncestorStateOfType<AppState>();
-    return ListView.separated(
-        itemCount: state.entries != null ? 1: 2,
-        separatorBuilder:  (BuildContext context, int index) => Divider(), 
-        itemBuilder: (BuildContext context, int index) {
-          return ListTile(
-          title: Text(userJournal[index].title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),),
-          subtitle: Text('Rating: ' + userJournal[index].rating.toString()+ '\n' + userJournal[index].body),
-          
-          );
-        });      
-      
-    
+  // Widget to dispaly 'master mode' of journal entries
+  Widget detailedVerticalLayout(BuildContext context){
+  
+  return ListView.separated(
+      itemCount: userJournal.length,
+      separatorBuilder:  (BuildContext context, int index) => Divider(), 
+      itemBuilder: (BuildContext context, int index) {
+        return ListTile(
+        title: Text(userJournal[index].title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),),
+        subtitle: Text(userJournal[index].body + '\n' + userJournal[index].dateTime + '\n' + 'Rating: ' + userJournal[index].rating.toString(),)
+        );
+      });    
   } 
 
 // Layout of widgets when phone orientation is horizontal
- Future horizontalLayout(BuildContext context)async {  
+ Widget horizontalLayout(BuildContext context) {  
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Expanded(child: await verticalLayout1(context)),
-        Expanded(child: verticalLayout2(context))
+        Expanded(child: verticalLayout(context)),
+        Expanded(child: detailedVerticalLayout(context))
       ]);  
   }
 
@@ -140,12 +124,6 @@ class JournalEntriesState extends State<JournalEntries> {
         children: [
             Text('Loading', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
             Center(child: CircularProgressIndicator(),)
-        ],);
-    
-    }
-
-
-  
-
+        ],);    
+  }
 }
-
