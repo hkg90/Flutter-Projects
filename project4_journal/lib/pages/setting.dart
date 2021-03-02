@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project4_journal/app.dart';
 
-// Navigation Drawer that holds Dark Mode option for user to select
+// Navigation Drawer Widget that holds Dark Mode option for user to select
 class SettingsDrawer extends StatefulWidget {
   const SettingsDrawer({Key key}) : super(key: key);
 
@@ -13,8 +13,6 @@ class SettingsDrawer extends StatefulWidget {
 
 class _SettingsDrawerState extends State<SettingsDrawer> {
   bool _lightTheme = false;
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -34,54 +32,29 @@ class _SettingsDrawerState extends State<SettingsDrawer> {
             title: const Text('Dark Mode'),
             value: _lightTheme, 
             onChanged: (bool value) {
-            setState((){
-              
-              _lightTheme = value;
-              
-              state.setState(() {
-              if (state.theme){
-                state.theme = false;
-                newSetting(state.theme);
-              } else{
-                state.theme = true;
-                newSetting(state.theme);
+              // Updates state for user preferences
+              setState((){
+                _lightTheme = value;
+                state.setState(() {
+                if (state.theme){
+                  state.theme = false;
+                  newSetting(state.theme);
+                } else{
+                  state.theme = true;
+                  newSetting(state.theme);}                
+                  });
+                });
               }
-              //state.theme = value;
-    });
-            });
-          })
-       ],
-       
-       )
+            )
+        ],     
+      )
     );
   }
 
-
+  // Updates shared preferences for 'theme'
   void newSetting(value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('theme', value);
   }
 }
-  
-     
-     
-     
-//      Column(
-//     // Important: Remove any padding from the ListView.
-//    // crossAxisAlignment: CrossAxisAlignment.stretch,
-//     children: [
     
-      
-    
-//               DrawerHeader(
-//           child: 
-// Text('Settings'),      
-//         ),
-     
-                
-//     ],
-//   ),);
-//     );
-//   }
-// }
-

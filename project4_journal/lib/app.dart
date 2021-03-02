@@ -48,7 +48,7 @@ class AppState extends State<App> {
   }
 
   // Loads journal data from sqflite database
-  Future loadJournal() async {   
+  void loadJournal() async {   
     // Open database file
     Database database = await openDatabase(
       'journal.sqlite3.db', version: 1, onCreate: (Database db, int version) async{
@@ -65,15 +65,12 @@ class AppState extends State<App> {
         title: record['title'],
         body: record['body'], 
         rating: record['rating'],
-        dateTime: DateFormat.yMMMd().format(DateTime.parse(record['date'])));
+        dateTime: DateFormat('EEEE, d MMM, yyyy').format(DateTime.parse(record['date'])));
     }).toList();
     
     // Set state for journal
     setState(() {
-      userJournal = listEntries;
-      print('app.dart side: ');
-      print(userJournal);
-      return userJournal;
+      userJournal = listEntries;   
     });
   }
 

@@ -14,8 +14,6 @@ void main() async {
     DeviceOrientation.landscapeRight,
     DeviceOrientation.portraitUp
   ]);
-  // Processes file data prior to launching app
-  await processData();
   
   // Launches app
   runApp(App(preferences: await SharedPreferences.getInstance()));

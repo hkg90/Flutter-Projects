@@ -40,7 +40,7 @@ class JournalEntriesState extends State<JournalEntries> {
     // Retrieve data from sql database
     List<Map> databaseEntries = await database.rawQuery('SELECT * FROM journal_entries');
     
-    // final DateFormat formatter = DateFormat('yyyy-MM-dd');
+    
 
     // Create journal object to store database entries in a list
     final listEntries = databaseEntries.map((record){
@@ -48,15 +48,13 @@ class JournalEntriesState extends State<JournalEntries> {
         title: record['title'],
         body: record['body'], 
         rating: record['rating'],
-        dateTime: DateFormat.yMMMd().format(DateTime.parse(record['date'])));
+        dateTime: DateFormat('EEEE, d MMM, yyyy').format(DateTime.parse(record['date'])));
       }).toList();
     
     setState(() {
       // Journal.journal = listEntries; 
       userJournal = listEntries;
-      print('entries.dart side: ');
-      print(userJournal);
-      return userJournal;
+      //return userJournal;
     });
   }
 
@@ -93,7 +91,7 @@ class JournalEntriesState extends State<JournalEntries> {
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
           title: Text(userJournal[index].title),
-          subtitle: Text(userJournal[index].body+', ' + userJournal[index].dateTime.toString()),
+          subtitle: Text(userJournal[index].dateTime.toString()),
           onTap: () {Navigator.push(
               context, MaterialPageRoute(builder: (context) {
                 
@@ -125,25 +123,22 @@ class JournalEntriesState extends State<JournalEntries> {
     
   } 
 
-
- Future horizontalLayout(BuildContext context)async {
-  
+// Layout of widgets when phone orientation is horizontal
+ Future horizontalLayout(BuildContext context)async {  
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-     children: [
-        Expanded(
-                  child: await verticalLayout1(context)
-        ),
-     Expanded(
-            child: verticalLayout2(context)
-     )
-    ]);  
+      children: [
+        Expanded(child: await verticalLayout1(context)),
+        Expanded(child: verticalLayout2(context))
+      ]);  
   }
-  Widget loadPage(BuildContext context){
-    
+
+  // Widget for 'loading' page (when waiting for data back from 
+  // database query)
+  Widget loadPage(BuildContext context){    
       return Column(
         children: [
-            Text('Loading'),
+            Text('Loading', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
             Center(child: CircularProgressIndicator(),)
         ],);
     
