@@ -1,6 +1,5 @@
 // Processes data from database by creating DTOs and processing
 // input file to create database table schema
-import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 
 
@@ -13,7 +12,7 @@ class Entries{
   final rating;
   final dateTime;
 
-// Job constructor
+// Entry constructor
   Entries({this.title, this.body, this.rating, this.dateTime});
 }
 

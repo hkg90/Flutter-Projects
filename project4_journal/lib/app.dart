@@ -7,7 +7,6 @@ import 'package:sqflite/sqflite.dart';
 
 import 'pages/entries.dart';
 import 'pages/welcome.dart';
-import 'package:project4_journal/pages/display_single_entry.dart';
 import 'package:project4_journal/pages/new_entry.dart';
 import 'package:project4_journal/models/process_data.dart';
 import 'package:project4_journal/pages/setting.dart';

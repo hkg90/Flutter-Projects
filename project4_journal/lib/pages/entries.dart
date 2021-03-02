@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:project4_journal/app.dart';
 import 'package:project4_journal/pages/display_single_entry.dart';
 import 'package:project4_journal/models/process_data.dart';
 
@@ -28,6 +27,7 @@ class JournalEntriesState extends State<JournalEntries> {
     loadJournal();
   }
   
+  // Retreives journal entries from database
   Future loadJournal() async {
     // Open database file
     Database database = await openDatabase(
