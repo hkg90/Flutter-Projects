@@ -11,3 +11,5 @@ Flow of program:
       * Display the name and description of the planet that the user specified.
       * Handle the case where the user enters the name of a planet that is not in the data file.
 5. Terminates execution at the end of the above interaction.
+
+**To run program, execute command: dart .\bin\dart_space_adventure.dart .\bin\planetarySystem.json**
