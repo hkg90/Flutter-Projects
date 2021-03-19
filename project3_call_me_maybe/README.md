@@ -11,4 +11,4 @@
 3. Predictor tab should exhibits behavior similar to a "magic eight ball" and playfully predicts whether or not you will get called back after an interview.
   * Tapping on Text widget causes the screen to display a new random answer.
 
-# To run app, use VSC to run flutter project with virtual device simulator (I used a Pixel 4 emulator). 
+*To run app, use VSC to run flutter project with virtual device simulator (I used a Pixel 4 emulator). *
