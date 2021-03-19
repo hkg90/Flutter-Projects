@@ -1,16 +1,14 @@
-# project3_call_me_maybe
+# Project 3: Resume-type application
+* Displays three tabs, consisting of icons, at the top area of the screen.
+* Layout is responsive enough to look good and be usable in any orientation (ie images scale, no screen overflow, styled uniquely, etc.).
 
-A new Flutter project.
+1. The Business Card tab displays a photo, name, title, phone number, web site url (e.g., GitHub profile), and email address.
+  * Tapping the phone number, the device's text messaging app should appear.
+  * Tapping the web site url makes web broswer open and displays GitHub web page.
 
-## Getting Started
+2. The Resume tab displays scrollable list of prior work experience (challenge: create scrollable list without using ListView widget).
 
-This project is a starting point for a Flutter application.
+3. Predictor tab should exhibits behavior similar to a "magic eight ball" and playfully predicts whether or not you will get called back after an interview.
+  * Tapping on Text widget causes the screen to display a new random answer.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# To run app, use VSC to run flutter project with virtual device simulator (I used a Pixel 4 emulator). 
