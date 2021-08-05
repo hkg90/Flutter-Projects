@@ -1,0 +1,4 @@
+Image sources:
+tart.jpg: https://images.app.goo.gl/rHaESS8rkEYiTR618
+donut.jpg: https://images.app.goo.gl/pQp8msnAjays5s669
+bagel.jpg: https://images.app.goo.gl/qbdD8z3n8bShAvnP9
